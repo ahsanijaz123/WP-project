@@ -14,26 +14,9 @@ const MyOrders = () => {
       {},
       { headers: { token } }
     );
-    const orders = response.data.data;
-
-    // Group orders by a unique identifier (e.g., orderId)
-    const groupedOrders = orders.reduce((acc, order) => {
-      const orderId = order.orderId; // Replace with the actual identifier from your API
-      if (!acc[orderId]) {
-        acc[orderId] = {
-          items: [],
-          totalAmount: 0,
-          status: order.status,
-        };
-      }
-      acc[orderId].items.push(...order.items);
-      acc[orderId].totalAmount += order.amount; // Sum up the total price
-      return acc;
-    }, {});
-
-    setData(Object.values(groupedOrders)); // Convert grouped object back to an array
+    setData(response.data.data);
+    console.log(response.data.data);
   };
-
   useEffect(() => {
     if (token) {
       fetchOrders();
@@ -45,20 +28,26 @@ const MyOrders = () => {
       <h2>My Orders</h2>
       <div className="container">
         {data.map((order, index) => {
-          const combinedItems = order.items
-            .map(item => `${item.name} x ${item.quantity}`)
-            .join(", ");
-
           return (
             <div key={index} className="my-orders-order">
               <img src={assets.parcel_icon} alt="" />
-              <p>{combinedItems}</p>
-              <p>Total Price: Rs {order.totalAmount}.00</p>
-              <p>Items: {order.items.length}</p>
+              <p>
+                {order.items.map((item, index) => {
+                  if (index === order.items.length - 1) {
+                    return item.name + " x " + item.quantity;
+                  } else {
+                    return item.name + " x " + item.quantity + ", ";
+                  }
+                })}{" "}
+              </p>
+              <p>Rs {order.amount} </p>
+              <p>Items: {order.items.length} </p>
               <p>
                 <span>&#x25cf;</span> <b> {order.status}</b>
               </p>
-              <button onClick={fetchOrders} className="track-order">Track Order</button>
+              <button onClick={fetchOrders} className="track-order">
+                Track Order
+              </button>
             </div>
           );
         })}
